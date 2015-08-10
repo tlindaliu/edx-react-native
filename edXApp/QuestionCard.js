@@ -20,10 +20,19 @@ var QuestionCard = React.createClass({
       this.height = height;
     });
   },
+  reset: function() {
+    this.setState({
+      x: 0,
+      y: 0,
+      dragging: false
+    });
+    this.ans = null;
+  },
   getInitialState: function() {
     return {
       x: 0,
-      y: 0
+      y: 0,
+      dragging: false
     }
   },
   setPosition: function(e) {
@@ -34,8 +43,11 @@ var QuestionCard = React.createClass({
     this.drag.x = e.nativeEvent.pageX;
     this.drag.y = e.nativeEvent.pageY;
   },
-
   resetPosition: function(e) {
+    this.setState({
+      dragging: false
+    });
+
     for (var ans in this.props.coords) {
       var mments = this.props.coords[ans];
       var lowerX = mments["x"];
@@ -50,14 +62,16 @@ var QuestionCard = React.createClass({
       }
     }
 
-    this.dragging = false;
     this.setState({
       x: 0,
       y: 0
     })
+    this.ans = null;
   },
   _onStartShouldSetResponder: function(e) {
-    this.dragging = true;
+    this.setState({
+      dragging: true
+    });
     this.drag = {
       x: e.nativeEvent.pageX,
       y: e.nativeEvent.pageY
@@ -79,8 +93,8 @@ var QuestionCard = React.createClass({
         onResponderRelease={this.resetPosition}
         onStartShouldSetResponder={this._onStartShouldSetResponder}
         onMoveShouldSetResponder={this._onMoveShouldSetResponder}
-        style={[styles.card, this.getCardStyle()]}>
-        <Text>{this.props.text}</Text>
+        style={[styles.card, this.getCardStyle(), {width: this.props.w, height: this.props.h}]}>
+        <Text style={styles.text}>{this.props.text}</Text>
       </View>
     );
   }
@@ -91,18 +105,21 @@ var styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'pink'
   },
   card: {
     borderWidth: 3,
     borderRadius: 3,
     borderColor: '#000',
-    width: 100,
-    height: 100,
-    margin: 5,
+    height: 93,
+    margin: 3,
     padding: 10,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
+  text: {
+    fontWeight: 'bold'
+  }
 });
 
 module.exports = QuestionCard;
