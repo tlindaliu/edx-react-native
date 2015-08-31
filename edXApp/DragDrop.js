@@ -4,6 +4,7 @@ var Button = require('react-native-button');
 var QuestionCard = require('./QuestionCard');
 var Dimensions = require('Dimensions');
 var windowSize = Dimensions.get('window');
+//var CookieManager = require('react-native-cookies');
 var {
   AppRegistry,
   StyleSheet,
@@ -12,35 +13,52 @@ var {
   Text,
   ScrollView
 } = React;
-var coords = [];
 
 var DragDrop = React.createClass({
   getInitialState: function() {
-        return { drop: this.props.myDrop, drag: this.props.myDrag, solution: this.props.mySolution, img: null };
+    this.coords=[];
+    return {
+      drop: [], 
+      drag: [], 
+      img: null
+    }
   },
   componentDidMount: function() {
-    setTimeout(this.record)
+    fetch(this.props.runtime.handlerUrl(this, "get_data"))
+      .then((response) => response.json())
+      .then((responseData) => {
+        /*
+        CookieManager.getAll((err, res) => {
+          this.csrf = err['csrftoken'];
+        });
+        */
+        this.setState({
+          title: responseData.title,
+          drag: responseData.items,
+          drop: responseData.zones,
+          loaded: true
+        });
+
+        setTimeout(this.record);
+        this.publishEvent({event_type: 'xblock.drag-and-drop-v2.loaded'});
+
+      }).done();
   },
   record: function() {
     this.state.drop.forEach(this.setUpCoords);
   },
   setUpCoords: function(value) {
-    this.refs[value].measure((ox, oy, width, height, px, py) => {
+    this.refs[value.id].measure((ox, oy, width, height, px, py) => {
         var measurements = [];
         measurements["x"] = px;
         measurements["y"] = py;
         measurements["width"] = width;
         measurements["height"] = height;
-        coords[value] = measurements;
+        this.coords[value.title] = measurements;
       });
   },
-  showAnswer: function() {
-    for(var i = 0; i < this.state.drag.length; i++) {
-      var x = coords[this.state.solution[this.state.drag[i]]]["x"];
-      var y = coords[this.state.solution[this.state.drag[i]]]["y"];
-    }
-  },
   submit: function() {
+    /*
     for(var i = 0; i < this.state.drag.length; i++) {
       console.log(this.state.drag[i] + ": " + this.refs[this.state.drag[i]].ans);
     }
@@ -50,43 +68,58 @@ var DragDrop = React.createClass({
         return;
       }
     }
-    this.setState({ img: 'https://40.media.tumblr.com/c65c1c84fe0ef22206a580177be80ffa/tumblr_nshkou228H1rzy6xko2_75sq.png' });  
-
-  },
-  getCheck: function() {
-    return <Image style={styles.img} source={{uri: this.state.img}}/>;
+    this.setState({ img: 'https://40.media.tumblr.com/c65c1c84fe0ef22206a580177be80ffa/tumblr_nshkou228H1rzy6xko2_75sq.png' });
+    */  
   },
   reset: function() {
-    this.setState({ img: null });  
+    this.setState({
+      img: null 
+    });  
     for(var i = 0; i < this.state.drag.length; i++) {
-      this.refs[this.state.drag[i]].reset();
+      this.refs[this.state.drag[i].id].reset();
     }
   },
-  getAnswers: function() {
-    var x = [];
-    for(var i = 0; i < this.state.drop.length; i++) {
-      var d = this.state.drop[i];
-      x.push(<View ref={d} key={d} style={[styles.card, {height: windowSize.height * .5 / this.state.drop.length}]}><Text style={styles.text}>{d}</Text></View>)
-    }
-    return <View>{x}</View>;
-  },
-  getQuestions: function() {
-    var x = [];
-    for(var i = 0; i < this.state.drag.length; i++) {
-      var d = this.state.drag[i];
-      x.push(<QuestionCard text={d} key={d} w={windowSize.width * .85 / this.state.drag.length} h={windowSize.height * .3 / this.state.drop.length} coords={coords} ref={d}/>)
-    }
-    return <View ref='questions' style={styles.questions}>{x}</View> 
+  publishEvent: function(data) {
+    fetch(this.props.runtime.handlerUrl(this, "publish_event"), {
+      method: 'post',
+      headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+            //'X-CSRFToken': this.props.parent.csrf
+          },
+      body: JSON.stringify(data)
+    }).done();
   },
   render: function() {
-    var answers = this.getAnswers();
-    var questions = this.getQuestions();
-    var check = this.getCheck();
     return (
       <View ref='container' style={styles.container}>
-        <Text style={styles.text2}>[insert question]</Text>
-        {answers}
-        {questions}
+        <Text style={styles.text2}>{this.state.title}</Text>
+
+        {this.state.drop.map(function(item) {
+          return (
+            <View 
+              ref={item.id} 
+              key={item.id} 
+              style={[styles.card, {height: windowSize.height * .5 / this.state.drop.length}]}>
+              <Text style={styles.text}>{item.title}</Text>
+            </View>
+          );
+        }, this)}      
+
+        <View ref='questions' style={styles.questions}>
+        {this.state.drag.map(function(item) {
+          return (
+            <QuestionCard 
+              ref={item.id}
+              key={item.id} 
+              info={item}
+              parent={this}
+              w={windowSize.width * .85 / this.state.drag.length} 
+              h={windowSize.height * .3 / this.state.drop.length}/>
+          );
+        }, this)}
+        </View>
+
         <View ref='buttons' style={styles.buttons}>
           <Button style={styles.button} onPress={this.submit}>
             Submit
@@ -94,10 +127,9 @@ var DragDrop = React.createClass({
           <Button style={styles.button} onPress={this.reset}>
             Reset
           </Button> 
-          {check}
+          <Image style={styles.img} source={{uri: this.state.img}}/>
         </View>
-      </View>
-      
+      </View>     
     );
   }
 });

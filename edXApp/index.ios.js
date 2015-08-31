@@ -14,51 +14,13 @@ var {
 var InitialScreen = require('./DragDrop')
 
 var edXApp = React.createClass({
-  getInitialState: function() {
-    return {
-      loaded: false
-    };
-  },
-  componentDidMount: function() {
-    this.fetchData();
-  },
-  fetchData: function() {
-    fetch("http://demo0756287.mockable.io/test")
-      .then((response) => response.json())
-      .then((responseData) => {
-        this.setState({
-          drag: responseData.drag,
-          drop: responseData.drop,
-          solution: responseData.solution,
-          loaded: true
-        });
-      })
-      .done();
-  },
   render: function() {
-    if (!this.state.loaded) {
-      return this.renderLoadingView();
-    }
-
-    return this.renderAll()
-  },
-
-  renderLoadingView: function() {
-    return (
-      <View style={styles.background}>
-        <Text>
-          Loading...
-        </Text>
-      </View>
-    );
-  },
-  renderAll: function() {
     return (
       <NavigatorIOS
         initialRoute={{
           title: 'Initial',
           component: InitialScreen,
-          passProps: { myDrop: this.state.drop, myDrag: this.state.drag, mySolution: this.state.solution}  
+          passProps: { runtime: RuntimeProvider.getRuntime(1) }
         }}
         style={styles.container}/>
     )
@@ -68,13 +30,49 @@ var edXApp = React.createClass({
 var styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  background: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
   }
 });
+
+var RuntimeProvider = (function() {
+  var getRuntime = function(version) {
+    if (!this.versions.hasOwnProperty(version)) {
+      throw 'Unsupported XBlock version: ' + version;
+    }
+    return this.versions[version];
+  };
+
+  var versions = {
+    1: {
+      handlerUrl: function(block, handlerName, suffix, query) {
+        suffix = typeof suffix !== 'undefined' ? suffix : '';
+        query = typeof query !== 'undefined' ? query : '';
+        var usage = "drag-and-drop-v2-react.drag-and-drop-v2.d0.u0"; //need to fix
+        var baseUrl = "/handler/";
+        var studentId = "student_1";
+        /*
+        var url_selector = $(block).data('url_selector');
+        if (url_selector !== undefined) {
+            baseUrl = window[url_selector];
+        }
+        else {baseUrl = handlerBaseUrl;}
+        */
+
+        // studentId and handlerBaseUrl are both defined in block.html
+        return ('http://127.0.0.1:8000' +
+                baseUrl + usage +
+                           "/" + handlerName +
+                           "/" + suffix +
+                   "?student=" + studentId +
+                           "&" + query);
+      },
+    }
+  };
+
+  return {
+    getRuntime: getRuntime,
+    versions: versions
+  };
+}());
 
 AppRegistry.registerComponent('edXApp', () => edXApp);
 

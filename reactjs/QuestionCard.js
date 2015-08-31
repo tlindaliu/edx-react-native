@@ -23,7 +23,7 @@ var QuestionCard= React.createClass({
   },
   getInitialState: function () {
     return {
-      x: 0, 
+      x: 0,
       y: 0,
       dragging: false
     }

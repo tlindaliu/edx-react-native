@@ -4,7 +4,8 @@ var {
   AppRegistry,
   StyleSheet,
   View,
-  Text
+  Text,
+  AlertIOS
 } = React;
 
 var QuestionCard = React.createClass({
@@ -36,6 +37,7 @@ var QuestionCard = React.createClass({
     }
   },
   setPosition: function(e) {
+    if (!this.state.dragging) return
     this.setState({
       x: this.state.x + (e.nativeEvent.pageX - this.drag.x),
       y: this.state.y + (e.nativeEvent.pageY - this.drag.y)
@@ -48,8 +50,8 @@ var QuestionCard = React.createClass({
       dragging: false
     });
 
-    for (var ans in this.props.coords) {
-      var mments = this.props.coords[ans];
+    for (var ans in this.props.parent.coords) {
+      var mments = this.props.parent.coords[ans];
       var lowerX = mments["x"];
       var lowerY = mments["y"];
       var higherX = lowerX + mments["width"];
@@ -58,6 +60,33 @@ var QuestionCard = React.createClass({
       var adjY = this.state.y + this.originalY;
       if(adjX > lowerX && adjX + this.width < higherX && adjY > lowerY && adjY + this.height < higherY) {
         this.ans = ans;
+
+        var data = { val: this.props.info.id, zone: ans, top: adjY, left: adjX };
+        fetch(this.props.parent.props.runtime.handlerUrl(this, "do_attempt"), {
+          method: 'post',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+            //'X-CSRFToken': this.props.parent.csrf
+          },
+          body: JSON.stringify(data)
+        }).then((response) => response.json())
+          .then((responseData) => {
+            AlertIOS.alert(
+              responseData['correct'] ? "Correct!" : "Try again :(",             
+              responseData['feedback'],
+              [
+                {text: 'Close', onPress: () => this.props.parent.publishEvent({event_type: 'xblock.drag-and-drop-v2.feedback.closed', content: responseData['feedback'], manually: true })},
+              ]
+            )
+
+            this.props.parent.publishEvent({
+                event_type: 'xblock.drag-and-drop-v2.feedback.opened',
+                content: responseData['feedback']
+            });
+
+          }).done();
+
         return;
       }
     }
@@ -76,6 +105,12 @@ var QuestionCard = React.createClass({
       x: e.nativeEvent.pageX,
       y: e.nativeEvent.pageY
     }
+
+    this.props.parent.publishEvent({
+        event_type: 'xblock.drag-and-drop-v2.item.picked-up',
+        item_id: 0
+    });
+
     return true;
   },
   _onMoveShouldSetResponder: function(e) {
@@ -94,7 +129,7 @@ var QuestionCard = React.createClass({
         onStartShouldSetResponder={this._onStartShouldSetResponder}
         onMoveShouldSetResponder={this._onMoveShouldSetResponder}
         style={[styles.card, this.getCardStyle(), {width: this.props.w, height: this.props.h}]}>
-        <Text style={styles.text}>{this.props.text}</Text>
+        <Text style={styles.text}>{this.props.info.displayName}</Text>
       </View>
     );
   }

@@ -9,6 +9,14 @@ var DragDrop = React.createClass({displayName: "DragDrop",
     return { drop: ['ans1', 'ans2'], drag : ['q1', 'q2', 'q3', 'q4'], solution: {"q1": "ans1", "q2": "ans2"}, img: null}
   },
   componentDidMount: function() {
+    console.log("got here");
+    $.ajax('/handler/drag-and-drop-v2-scenario.drag-and-drop-v2.d0.u0/get_data/?student=student_1&', {
+      dataType: 'json'
+    }).done(function(data){
+      console.log("working");
+      console.log(data);
+    });
+
     this.record();
   },
   record: function() {
@@ -29,12 +37,10 @@ var DragDrop = React.createClass({displayName: "DragDrop",
     }
     for(var i = 0; i < this.state.drag.length; i++) {
       if (this.refs[this.state.drag[i]].ans != this.state.solution[this.state.drag[i]]) {
-        console.log("WRONG")
         this.setState({ img: 'https://40.media.tumblr.com/dde1102ac057cfd4bf81af930089204b/tumblr_nshkou228H1rzy6xko1_75sq.png' });  
         return;
       }
     }
-    console.log("YAY")
     this.setState({ img: 'https://40.media.tumblr.com/c65c1c84fe0ef22206a580177be80ffa/tumblr_nshkou228H1rzy6xko2_75sq.png' });  
 
   },
@@ -138,7 +144,7 @@ var QuestionCard= React.createClass({displayName: "QuestionCard",
   },
   getInitialState: function () {
     return {
-      x: 0, 
+      x: 0,
       y: 0,
       dragging: false
     }

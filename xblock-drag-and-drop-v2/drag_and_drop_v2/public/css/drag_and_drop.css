@@ -1,0 +1,226 @@
+.xblock--drag-and-drop {
+    width: 770px;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+}
+
+.xblock--drag-and-drop .problem-header {
+    display: inline-block;
+    margin: 0 0 15px 0;
+}
+
+.xblock--drag-and-drop .problem-progress {
+    display: inline-block;
+    padding-left: 5px;
+    color: #666;
+    font-weight: 100;
+    font-size: 1em;
+}
+
+.xblock--drag-and-drop .problem p {
+    margin-bottom: 1.41575em;
+}
+
+.xblock--drag-and-drop .drag-container {
+    width: 760px;
+    background: #ebf0f2;
+    position: relative;
+}
+
+.xblock--drag-and-drop .clear {
+    clear: both;
+}
+
+.xblock--drag-and-drop .title1 {
+    color: rgb(85, 85, 85);
+    text-transform: uppercase;
+    font-weight: bold;
+    font-style: normal;
+    margin: 10px 0;
+    margin-top: 20px;
+}
+
+
+/** Draggable Items **/
+.xblock--drag-and-drop .drag-container .items {
+    width: 210px;
+    margin: 10px;
+    padding: 0 !important; /* LMS tries to override this */
+    position: relative;
+    display: inline;
+    float: left;
+    list-style-type: none;
+}
+
+.xblock--drag-and-drop .drag-container .option {
+    width: 190px;
+    font-size: 14px;
+    background: #2e83cd;
+    color: #fff;
+    position: relative;
+    float: left;
+    display: inline;
+    /* Some versions of the drag and drop library try to fiddle with this */
+    z-index: 10 !important;
+    margin-bottom: 5px;
+    padding: 10px;
+    opacity: 1;
+}
+
+.xblock--drag-and-drop .drag-container .option img {
+    max-width: 100%;
+}
+
+.xblock--drag-and-drop .drag-container .option .numerical-input {
+    height: 32px;
+    position: absolute;
+    left: calc(100% + 5px);
+    top: calc(50% - 16px);
+}
+
+.xblock--drag-and-drop .drag-container .option .numerical-input .input {
+    display: inline-block;
+    width: 144px;
+}
+
+.xblock--drag-and-drop .drag-container .option .numerical-input .submit-input {
+    box-sizing: border-box;
+    position: absolute;
+    left: 150px;
+    top: 4px;
+    height: 24px;
+}
+
+.xblock--drag-and-drop .drag-container .option .numerical-input.correct .input-submit,
+.xblock--drag-and-drop .drag-container .option .numerical-input.incorrect .input-submit {
+    display: none;
+}
+
+.xblock--drag-and-drop .drag-container .option .numerical-input.correct .input {
+    background: #ceffce;
+    color: #0dad0d;
+}
+
+.xblock--drag-and-drop .drag-container .option .numerical-input.incorrect .input {
+    background: #ffcece;
+    color: #ad0d0d;
+}
+
+.xblock--drag-and-drop .drag-container .option.fade {
+    opacity: 0.5;
+}
+
+
+/*** Drop Target ***/
+.xblock--drag-and-drop .target {
+    width: 515px;
+    height: 510px;
+    position: relative;
+    display: inline;
+    float: left;
+    margin: 10px 0 15px 5px;
+    background: #fff;
+}
+
+.xblock--drag-and-drop .target-img {
+    background: url('../img/triangle.png') no-repeat;
+    width: 100%;
+    height: 100%;
+}
+
+.xblock--drag-and-drop .zone {
+    position: absolute;
+
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+
+    /* Internet Explorer 10 */
+    -ms-flex-pack:center;
+    -ms-flex-align:center;
+
+    /* Firefox */
+    -moz-box-pack:center;
+    -moz-box-align:center;
+
+    /* Safari, Opera, and Chrome */
+    -webkit-box-pack:center;
+    -webkit-box-align:center;
+
+    /* W3C */
+    box-pack:center;
+    box-align:center;
+
+}
+
+.xblock--drag-and-drop .zone p {
+    visibility: hidden;
+    width: 100%;
+    font-family: Arial;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+/*** IE9 alignment fix ***/
+.lt-ie10 .xblock--drag-and-drop .zone {
+    display: table;
+}
+
+.lt-ie10 .xblock--drag-and-drop .zone p {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/*** FEEDBACK ***/
+.xblock--drag-and-drop .feedback {
+    margin-top: 20px;
+    border-top: solid 1px rgb(189, 189, 189);
+}
+
+.xblock--drag-and-drop .popup {
+    position: absolute;
+    display: none;
+    top: 5%;
+    right: 5%;
+    background: none repeat scroll 0 0 #66A5B5;
+    width: 500px;
+    max-width: 90%;
+    min-height: 50px;
+    max-height: 90%;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.xblock--drag-and-drop .popup .popup-content {
+    color: #FFFFFF;
+    margin-left: 15px;
+    margin-top: 35px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.xblock--drag-and-drop .popup .close {
+    cursor: pointer;
+    float: right;
+    margin-right: 8px;
+    margin-top: 8px;
+    margin-left: 20px;
+    color: #FFFFFF;
+    font-family: "fontawesome";
+    font-size: 18pt;
+}
+
+.xblock--drag-and-drop .reset-button {
+    cursor: pointer;
+    float: right;
+    color: #3384CA;
+    margin-top: 3px;
+}
